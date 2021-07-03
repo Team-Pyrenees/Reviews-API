@@ -1,11 +1,60 @@
-# Review-API
+# Reviews-API
 A REST API micro-service which provides an API to the Atelier e-Commerce application. The service queries an SQL database. The database and the server have been optimized to look-thourgh 20mil+ items of data and  transform it in a way in which it is digestable for a front-end application that has already been designed and built.
 
 This service makes use of caching by implementing Redis. The caching takes into account data-integrity and only caches when it is possible to sacrifice speed for integrity.
 
-# Endpoints
+# Schema
 
-## GET /reviews
+![image](./images/sdc_schema.png)
+
+
+# Data Flow
+## Local
+![image](./images/sdc_local.png)
+
+The system itself would not be accessed off of any local computer but prior to hosting, that is how the system was originally implemented.
+
+Queries executed by the meta reviews endpoint:
+
+```
+db.getAllReviews(product_id) =
+SELECT rating, recommend FROM
+reviews WHERE product_id=${id} AND
+reported=1 ORDER BY id DESC
+
+db.getCharacteristics(product_id) =
+SELECT characteristics.id, product_id,
+name, value FROM characteristics LEFT JOIN
+characteristics_reviews ON characteristics.id =
+characteristics_reviews.characteristic_id
+WHERE product_id=${id}
+```
+
+Tested the meta reviews endpoint using artillery.io. The tests showed that locally the server and database can easily handel 1000 users per second.
+
+```
+meta reviews endpoint =
+Summary report @ 22:29:54(-0400) 2021-06-29
+  Scenarios launched:  1000
+  Scenarios completed: 1000
+  Requests completed:  1000
+  Response time (msec):
+    min: 1
+    max: 136
+    median: 3
+    p95: 113
+    p99: 123
+  Scenario counts:
+    0: 1000 (100%)
+  Codes:
+    200: 1000
+```
+
+## Deployed
+
+
+# Endpoints
+### GET /reviews
 Retrieves a list of reviews for the specified product.
 
 Parameter | Type | Description
@@ -21,49 +70,42 @@ RESPONSE
 > Response: Status 200 OK
 ```json
 {
-  "product": "2",
-  "page": 0,
-  "count": 5,
-  "results": [
-    {
-      "review_id": 5,
-      "rating": 3,
-      "summary": "I'm enjoying wearing these shades",
-      "recommend": false,
-      "response": null,
-      "body": "Comfortable and practical.",
-      "date": "2019-04-14T00:00:00.000Z",
-      "reviewer_name": "shortandsweeet",
-      "helpfulness": 5,
-      "photos": [{
-          "id": 1,
-          "url": "urlplaceholder/review_5_photo_number_1.jpg"
+    "product": "11005",
+    "page": 0,
+    "count": "100",
+    "results": [
+        {
+            "review_id": 63948,
+            "rating": 1,
+            "summary": "Similique in itaque et id nostrum soluta.",
+            "recommend": 1,
+            "response": null,
+            "body": "Qui quia vel voluptatum. Accusantium porro mollitia enim rerum expedita fugit aspernatur. Ex illum architecto nihil nulla. Vel voluptatem velit. Quam sint ipsum nemo repellat architecto non natus ut delectus. Voluptate dicta natus qui provident molestias.",
+            "date": "2021-06-24T04:00:00.000Z",
+            "reviewer_name": "Winfield_Schowalter",
+            "helpfulness": 1,
+            "photos": [
+                "https://images.unsplash.com/photo-1465877783223-4eba513e27c6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1650&q=80"
+            ]
         },
         {
-          "id": 2,
-          "url": "urlplaceholder/review_5_photo_number_2.jpg"
+            "review_id": 63947,
+            "rating": 1,
+            "summary": "Accusantium id possimus voluptas.",
+            "recommend": 1,
+            "response": null,
+            "body": "Qui placeat et. Omnis incidunt sed non ex rerum quo aut. Quam magni commodi.",
+            "date": "2021-06-24T04:00:00.000Z",
+            "reviewer_name": "Lauretta_Abshire",
+            "helpfulness": 6,
+            "photos": []
         },
-        // ...
-      ]
-    },
-    {
-      "review_id": 3,
-      "rating": 4,
-      "summary": "I am liking these glasses",
-      "recommend": false,
-      "response": "Glad you're enjoying the product!",
-      "body": "They are very dark. But that's good because I'm in very sunny spots",
-      "date": "2019-06-23T00:00:00.000Z",
-      "reviewer_name": "bigbrotherbenjamin",
-      "helpfulness": 5,
-      "photos": [],
-    },
-    // ...
-  ]
+        ...
+    ]
 }
 ```
 
-## GET /reviews/meta
+### GET /reviews/meta
 Retrieves meta data for a product.
 
 Parameter | Type | Description
@@ -103,7 +145,7 @@ RESPONSE
 }
 ```
 
-## POST /reviews
+### POST /reviews
 Add's a review to the list of reviews.
 
 Parameter | Type | Description
@@ -121,7 +163,7 @@ characteristics | object | Object of keys representing characteristic_id and val
 RESPONSE
 > Response: Status 201 CREATED
 
-## PUT /reviews/:review_id/helpful
+### PUT /reviews/:review_id/helpful
 Updates a review and adds to the helpful counter
 
 Parameter | Type | Description
@@ -131,7 +173,7 @@ reveiw_id | integer | Required ID of the review to update
 RESPONSE
 > Response: Status 204 NO CONTENT
 
-## PUT /reviews/:review_id/report
+### PUT /reviews/:review_id/report
 Reports a review so that the next time get is called on the product, the review will not show up.
 
 Parameter | Type | Description

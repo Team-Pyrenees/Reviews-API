@@ -2,13 +2,21 @@ const mysql = require('mysql2/promise');
 const bluebird = require('bluebird');
 
 const pool = mysql.createPool({
-  host: '18.116.165.218',
-  port: 3306,
-  user: 'varun2',
+  host: 'localhost',
+  user: 'root',
   password: 'chillara',
   database: 'SDC',
   connectionLimit: 5
 });
+
+// const pool = mysql.createPool({
+//   host: '18.116.165.218',
+//   port: 3306,
+//   user: 'varun2',
+//   password: 'chillara',
+//   database: 'SDC',
+//   connectionLimit: 5
+// });
 
 module.exports.getNReviews = (id, n, sort) => {
   return pool.query(`SELECT * FROM reviews where product_id=${id} AND reported=1 ORDER BY ${sort} DESC LIMIT ${n}`);
