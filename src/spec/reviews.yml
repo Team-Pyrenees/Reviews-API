@@ -1,0 +1,10 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 1
+      arrivalRate: 1000
+      name: reviews end-point
+scenarios:
+  - flow:
+      - get:
+          url: "/reviews/?product_id=62&count=100&sort=newest&page=0"
