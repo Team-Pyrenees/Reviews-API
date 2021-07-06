@@ -6,7 +6,7 @@ This service makes use of caching by implementing Redis. The caching takes into 
 # Schema
 
 ![image](./images/sdc_schema.png)
-
+I chose MySql for my database so that I could normalize the data as best as possible.
 
 # Data Flow
 ## Local
@@ -51,8 +51,17 @@ Summary report @ 22:29:54(-0400) 2021-06-29
 ```
 
 ## Deployed
+![image](./images/deployed_system_redis_1.jpg)
+![image](./images/deployed_system_redis_2.jpg)
+The deployed system makes use of 2 EC2 instances. One hosts the MySql database and the other hosts the endpoints and redis server. The above two images shows the ideal scenario in which redis would be useful. All of the complex queries would  not be needed if the same product is asked for within 5 seconds. I set the life-span of each cache to 5 seconds to perseve data integrity.
 
-
+# Stress Test
+Stress tested 100 users per second:
+![image](./images/stress_test_1.jpg)
+Stress tested 500 users per second:
+![image](./images/stress_test_2.jpg)
+Stress tested 1000 users per second:
+![image](./images/stress_test_3.jpg)
 # Endpoints
 ### GET /reviews
 Retrieves a list of reviews for the specified product.
